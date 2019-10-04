@@ -57,8 +57,7 @@ name = input("Please input your name: ")
 while True:
     player = Player(name, current_room)
     playerRoom = Room(room[current_room].name , room[current_room].description)
-    print(playerRoom)
-    print(player)
+    print(playerRoom, player)
 
     direction = input("Please input a direction n/s/e/w: ")
 
