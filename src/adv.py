@@ -1,6 +1,14 @@
 from room import Room
 from player import Player
 
+class Item:
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+
+    def __str__(self):
+        return f"{self.name}" 
+
 # Declare all the rooms
 
 room = {
@@ -22,6 +30,10 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
+# Items
+sword = Item("sword", "The sword glows and radiates heat from the blade")
+shield = Item("shield", "The shield was crafted in a magic forge")
+armor = Item("armor", "Inpenetrable armor crafted by elves")
 
 # Link rooms together
 
@@ -34,17 +46,13 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
+room['overlook'].items = [shield]
+room['foyer'].items = [sword]
+room['narrow'].items = [armor]
+
 #
 # Main
 #
-
-class Item:
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
-
-    def __str__(self):
-        return f"{self.name}" 
 
 # Make a new player object that is currently in the 'outside' room.
 
@@ -59,53 +67,58 @@ class Item:
 #
 # If the user enters "q", quit the game.
 
-current_room = "outside"
-name = input("Please input your name: ")
+player_name = input("Name?: ")
+new_player = Player(player_name, room['outside'])
 
-while True:
-    player = Player(name, current_room)
-    playerRoom = Room(room[current_room].name , room[current_room].description)
-    print(playerRoom, player)
+print(f"Location: { new_player.current_room.name }")
+print(new_player.current_room.description)
 
-    direction = input("Please input a direction n/s/e/w: ")
+def getitem():
+    item_choice = input("What would you like to do?").split()
+    for i in new_player.current_room.items:
+        if item_choice[1] == i.name and item_choice[0] == "get":
+            new_player.items.append(i)
+            new_player.current_room.items.remove(i)
+        else:
+            print("Sorry, option not available.")
 
-    if direction == "q":
-        break
-    elif current_room == "outside":
-        if direction == "n":
-            current_room = "foyer"
-        else:
-            print("That movement is not allowed")
-            continue
-    elif current_room == "foyer":
-        if direction == "s":
-            current_room = "outside"
-        elif direction == "n":
-            current_room == "overlook"
-        elif direction == "e":
-            direction == "narrow"
-        else:
-            print("That movement is not allowed")
-            continue
-    elif current_room == "overlook":
-        if direction == "s":
-            current_room = "foyer"
-        else:
-            print("That movement is not allowed")
-            continue
-    elif current_room == "narrow":
-        if direction == "w":
-            current_room = "foyer"
-        elif direction == "n":
-            current_room = "treasure"
-        else:
-            print("That movement is not allowed")
-            continue
-    elif current_room == "treasure":
-        if direction == "s":
-            current_room = "narrow"
-        else:
-            print("That movement is not allowed")
-            continue
+def update_location():
+    print(new_player.current_room)
+    if len(new_player.current_room.items) > 0:
+        getitem()
+        print(new_player)
 
-print("Thank you for playing!") 
+def invalid_direction():
+    print("Sorry, you can't move in that direction.")
+
+user_choice = ''
+while user_choice != 'q':
+    user_choice = input("Please, choose a direction.  Enter n, s, e, or w: ")
+    if user_choice == 'n':
+        if hasattr(new_player.current_room, 'n_to'):
+            new_player.current_room = new_player.current_room.n_to
+            update_location()
+        else:
+            invalid_direction()
+    elif user_choice == 's':
+        if hasattr(new_player.current_room, 's_to'):
+            new_player.current_room = new_player.current_room.s_to
+            update_location()
+        else:
+            invalid_direction()
+    elif user_choice == 'e':
+        if hasattr(new_player.current_room, 'e_to'):
+            new_player.current_room = new_player.current_room.e_to
+            update_location()
+        else:
+            invalid_direction()
+    elif user_choice == 'w':
+        if hasattr(new_player.current_room, 'w_to'):
+            new_player.current_room = new_player.current_room.w_to
+            update_location()
+        else:
+            invalid_direction()
+    elif user_choice == 'q':
+        print("Thanks for playing.")
+    else:
+        print("Not a valid direction.")

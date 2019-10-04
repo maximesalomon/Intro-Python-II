@@ -11,6 +11,3 @@ class Player:
         for item in self.items:
             toprint += f'{item}'
             return toprint
-
-    name = str
-    current_room = str
